@@ -60,6 +60,9 @@ const visitWithProxy = async (proxy, url) => {
         console.log(`scrolling with a distance: ${distance}`);
 
         await autoScroll(page, distance);
+        let photoTimestamp = new Date().toISOString().slice(0, 16).replace("T", "_");
+
+        await page.screenshot({path: `screenshots/${photoTimestamp}.png`});
     } catch (error) {
         console.error(`Error with proxy ${proxy}: ${error.message}`);
     } finally {

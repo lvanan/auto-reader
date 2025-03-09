@@ -28,10 +28,16 @@ def run_script():
         logging.error(f"Script execution failed:\n{e.stderr}")
         print(f"Error executing script at {timestamp}")
 
+    # Check if all scheduled tasks are completed
+    if not schedule.get_jobs():
+        print("✅ All scheduled tasks have been executed. Exiting...")
+        exit(0)
+
 def generate_random_times():
-    """Generates 20 random timestamps between 10:00 and 18:30."""
-    start_time = datetime.strptime("10:00", "%H:%M")
-    end_time = datetime.strptime("18:30", "%H:%M")
+    """Generates 20 random timestamps between 10:00 and 18:30 for today."""
+    now = datetime.now()
+    start_time = now.replace(hour=10, minute=0, second=0, microsecond=0)
+    end_time = now.replace(hour=18, minute=30, second=0, microsecond=0)
 
     random_times = set()
     while len(random_times) < 20:
@@ -41,14 +47,16 @@ def generate_random_times():
 
     return sorted(random_times)
 
-# Schedule the script at random times
+# Schedule the script at random times for today only
 random_times_generated = generate_random_times()
 for rt in random_times_generated:
     schedule.every().day.at(rt).do(run_script)
     logging.info(f"Scheduled execution at {rt}")
     print(f"Scheduled execution at {rt}")
 
-# Keep the script running
-while True:
+# Keep the script running until all jobs are executed
+while schedule.get_jobs():
     schedule.run_pending()
     time.sleep(30)
+
+print("✅ All tasks completed. Exiting script.")
