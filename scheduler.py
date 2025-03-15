@@ -36,10 +36,10 @@ def run_script():
 def generate_random_times():
     """Generates 20 random timestamps within the next 3 hours."""
     now = datetime.now()
-    end_time = now + timedelta(hours=3)
+    end_time = now + timedelta(hours=2)
 
     random_times = set()
-    while len(random_times) < 20:
+    while len(random_times) < 10:
         random_offset = random.randint(0, int((end_time - now).total_seconds()))
         random_time = (now + timedelta(seconds=random_offset)).strftime("%H:%M")
         random_times.add(random_time)

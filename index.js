@@ -1,5 +1,9 @@
-const puppeteer = require("puppeteer");
-const axios = require("axios");
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const axios = require('axios');
+const { executablePath } = require('puppeteer');
+
+puppeteer.use(StealthPlugin());
 
 const urls = ["https://medium.com/@ivanan.fedotov/instrumenting-kotlin-apps-with-opentelemetry-prometheus-and-grafana-ed9b87e2a75d", "https://medium.com/@ivanan.fedotov/using-postgres-as-jobrepository-for-exporting-data-from-mongodb-with-springbatch-505d01d8919b"];
 const proxyApi = "https://proxylist.geonode.com/api/proxy-list?limit=2&page=1&sort_by=lastChecked&sort_type=desc";
@@ -47,12 +51,14 @@ const visitWithProxy = async (proxy, url) => {
     console.log(`Reading the article: ${url}`);
     const browser = await puppeteer.launch({
         args: [`--proxy-server=http=${proxy}`, "--incognito"],
-        headless: false,
+        headless: true,
     });
 
     try {
         const page = await browser.newPage();
+        // await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
         await page.goto(url, {waitUntil: "networkidle2"});
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
         await page.setViewport({width: 1200, height: 800});
         let maxSpeed = 300
         let minSpeed = 50
@@ -77,7 +83,7 @@ const visitWithProxy = async (proxy, url) => {
         return;
     }
 
-    let articleNumber = Math.floor(Math.random() * (urls.length + 1));
+    let articleNumber = Math.floor(Math.random() * (urls.length));
 
     for (const proxy of proxies) {
         await visitWithProxy(proxy, urls.at(articleNumber));
